@@ -172,7 +172,7 @@ describe('fix links',function(){
           uri: 'http://github.com/Tjatse',
           html: '<title>read-art</title><body><div><p>hi, dude, i am <img data-image-dir="/path/to/" thumbnail="foo.png" />, aka read-art...</p></div></body>',
           imgFallback: function (node) {
-            arguments.should.have.length(1);
+            arguments.should.have.length(2);
             return node.data('image-dir') + node.attr('thumbnail');
           }
         }, function(err, art){
@@ -188,7 +188,7 @@ describe('fix links',function(){
           uri: 'http://github.com/Tjatse',
           html: '<title>read-art</title><body><div><p>hi, dude, i am <img data-image-dir="/path/to/" thumbnail="foo.png" />, aka read-art...</p></div></body>',
           imgFallback: function (node) {
-            arguments.should.have.length(1);
+            arguments.should.have.length(2);
             return node.data('image-dir') + node.attr('thumbnail');
           }
         }, function(err, art){
@@ -203,9 +203,11 @@ describe('fix links',function(){
         read({
           uri: 'http://github.com/Tjatse',
           html: '<title>read-art</title><body><div><p>hi, dude, i am <img data-image-dir="/path/to/" thumbnail="foo.png" src="/path/to/bar.png" />, aka read-art...</p></div></body>',
-          imgFallback: function (node) {
-            arguments.should.have.length(1);
-            return node.data('image-dir') + node.attr('thumbnail');
+          imgFallback: function (node, src) {
+            arguments.should.have.length(2);
+            if (!src) {
+              return node.data('image-dir') + node.attr('thumbnail');
+            }
           },
         }, function(err, art){
           should.not.exist(err);
@@ -220,15 +222,15 @@ describe('fix links',function(){
         read({
           uri: 'http://github.com/Tjatse',
           html: '<title>read-art</title><body><div><p>hi, dude, i am <img data-image-dir="/path/to/" thumbnail="foo.png" src="/path/to/bar.png" />, aka read-art...</p></div></body>',
-          imgFallback: function (node) {
-            arguments.should.have.length(1);
+          imgFallback: function (node, src) {
+            arguments.should.have.length(2);
             return node.data('image-dir') + node.attr('thumbnail');
           }
         }, function(err, art){
           should.not.exist(err);
           expect(art).to.be.an('object');
-          art.content.should.contain(' src="http://github.com/path/to/bar.png"');
-          art.content.should.not.contain(' src="http://github.com/path/to/foo.png"');
+          art.content.should.contain(' src="http://github.com/path/to/foo.png"');
+          art.content.should.not.contain(' src="http://github.com/path/to/bar.png"');
           art.title.should.equal('read-art');
           done();
         });
@@ -238,7 +240,7 @@ describe('fix links',function(){
           uri: 'http://github.com/Tjatse',
           html: '<title>read-art</title><body><div><p>hi, dude, i am <img data-src="/path/to/foo.png" />, aka read-art...</p></div></body>',
           imgFallback: function (node) {
-            arguments.should.have.length(1);
+            arguments.should.have.length(2);
           }
         }, function(err, art){
           should.not.exist(err);
@@ -250,5 +252,5 @@ describe('fix links',function(){
       });
     });
   });
-
 });
+
